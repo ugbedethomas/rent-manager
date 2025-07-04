@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Tenant</title>
+    <style>
+        body { font-family: Arial; background: #f8d7da; padding: 30px; text-align: center; }
+        form { display: inline-block; margin-top: 30px; }
+        button { padding: 10px 20px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        a { margin-left: 20px; color: blue; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h2>⚠️ Are you sure you want to delete {{ tenant.full_name }}?</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+    </form>
+    <a href="{% url 'tenant_list' %}">Cancel</a>
+</body>
+</html>

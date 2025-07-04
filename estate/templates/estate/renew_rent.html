@@ -1,0 +1,26 @@
+{% extends 'estate/base.html' %}
+
+{% block title %}Renew Rent{% endblock %}
+
+{% block content %}
+<h2 style="text-align:center;">🔄 Renew Rent for {{ tenant.full_name }}</h2>
+
+<form method="post" style="max-width: 600px; margin:auto; background:white; padding:20px; border-radius:10px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
+    {% csrf_token %}
+    <label>New Agreement Start Date:</label>
+    <input type="date" name="date_of_agreement" value="{{ default_start|date:'Y-m-d' }}" required>
+
+    <label>New Expiry Date:</label>
+    <input type="date" name="date_of_expiration" value="{{ default_end|date:'Y-m-d' }}" required>
+
+    <label>Rent Amount (₦):</label>
+    <input type="number" name="rent_amount" step="0.01" value="{{ previous_rent }}" required>
+
+    <label>Renewal Note:</label>
+    <textarea name="payment_or_renewal_note" rows="3" placeholder="e.g. Renewed on 1st July 2025"></textarea>
+
+    <button type="submit" style="margin-top: 20px;">✔️ Confirm Renewal</button>
+</form>
+
+<a href="{% url 'edit_tenant' tenant.id %}" style="display:block; text-align:center; margin-top: 20px;">← Back to Edit Tenant</a>
+{% endblock %}

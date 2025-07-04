@@ -1,0 +1,38 @@
+{% extends 'estate/base.html' %}
+
+{% block title %}Add New Tenant{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center;">➕ Add New Tenant</h1>
+
+<form method="post" style="
+    max-width: 600px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+">
+    {% csrf_token %}
+
+    <h3>Tenant Info</h3>
+    {{ tenant_form.as_p }}
+
+    <h3>Rent Agreement</h3>
+    {{ agreement_form.as_p }}
+
+    <button type="submit" style="
+        margin-top: 20px;
+        padding: 10px 15px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    ">Save Tenant</button>
+</form>
+
+<a href="{% url 'tenant_list' %}" style="display: block; margin-top: 20px; text-align: center; color: #555;">
+    ← Back to List
+</a>
+{% endblock %}

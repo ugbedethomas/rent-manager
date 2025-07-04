@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tenant Report</title>
+  <style>
+    body { font-family: Arial; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+    th { background: #eee; }
+    h2 { text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>📄 Tenant Report – GODMAN ESTATE KARU</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Tenant</th><th>Phone</th><th>Flat</th><th>Block</th><th>Type</th>
+        <th>Start</th><th>End</th><th>Rent</th><th>Status</th><th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in data %}
+      <tr>
+        <td>{{ item.tenant.full_name }}</td>
+        <td>{{ item.tenant.phone_number }}</td>
+        <td>{{ item.tenant.flat_number }}</td>
+        <td>{{ item.tenant.block.number }}</td>
+        <td>{{ item.tenant.flat_type }}</td>
+        <td>{{ item.agreement.date_of_agreement }}</td>
+        <td>{{ item.agreement.date_of_expiration }}</td>
+        <td>₦{{ item.agreement.rent_amount }}</td>
+        <td>{{ item.status|title }}</td>
+        <td>{{ item.agreement.payment_or_renewal_note }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

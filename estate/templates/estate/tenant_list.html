@@ -1,0 +1,338 @@
+{% extends 'estate/base.html' %}
+{% load static %}
+
+{% block title %}Tenant Rent Status | GODMAN ESTATE KARU{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --sidebar-bg: #343a40;
+    --sidebar-text: #fff;
+    --sidebar-hover: #495057;
+    --body-bg: #f5f5f5;
+    --body-text: #000;
+    --accent: #ffc107;
+  }
+
+  [data-theme="dark"] {
+    --sidebar-bg: #212529;
+    --sidebar-text: #f8f9fa;
+    --sidebar-hover: #343a40;
+    --body-bg: #121212;
+    --body-text: #e9ecef;
+    --accent: #17a2b8;
+  }
+
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--body-bg);
+    color: var(--body-text);
+  }
+
+  .sidebar-toggle { display: none; }
+  .toggle-label {
+    display: none;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 15px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  .container {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .sidebar {
+    width: 200px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 20px;
+    transition: transform .3s ease-in-out;
+  }
+
+  .sidebar img.logo {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .sidebar .profile {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .sidebar .profile img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+  }
+
+  .sidebar a {
+    display: block;
+    color: var(--sidebar-text);
+    padding: 10px 0;
+    text-decoration: none;
+  }
+
+  .sidebar a:hover {
+    background-color: var(--sidebar-hover);
+    border-radius: 5px;
+    padding-left: 10px;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: var(--body-bg);
+    color: var(--body-text);
+  }
+
+  .dark-switch {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+  }
+
+  .dark-switch input {
+    margin-right: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .toggle-label { display: block; }
+
+    .sidebar {
+      position: fixed;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      transform: translateX(-100%);
+    }
+
+    .sidebar-toggle:checked ~ .container .sidebar {
+      transform: translateX(0);
+    }
+
+    .container { flex-direction: column; }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 10px;
+    border: 1px solid var(--sidebar-hover);
+    text-align: left;
+  }
+
+  th {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+  }
+
+  tr.active { background: #d4edda; }
+  tr.expiring { background: #fff3cd; }
+  tr.expired { background: #f8d7da; }
+
+  @media (max-width: 768px) {
+    table, thead, tbody, th, td, tr { display: block; }
+    thead { display: none; }
+    td {
+      position: relative;
+      padding-left: 50%;
+    }
+    td::before {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 45%;
+      white-space: nowrap;
+      font-weight: bold;
+      content: attr(data-label);
+    }
+  }
+
+  .filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .filter-form select, .filter-form button {
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--sidebar-hover);
+  }
+
+  .filter-form button {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    border: none;
+  }
+
+  .filter-form button:hover {
+    background: var(--sidebar-hover);
+  }
+
+  footer {
+    text-align: center;
+    padding: 15px;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    font-size: 14px;
+    margin-top: 40px;
+  }
+
+  @media print {
+    .sidebar, .toggle-label, .dark-switch, footer {
+      display: none !important;
+    }
+
+    .main-content {
+      background: white;
+      color: black;
+    }
+
+    table, tr, td, th {
+      page-break-inside: avoid !important;
+      border: 1px solid #000 !important;
+    }
+  }
+</style>
+
+<!-- 🌙 DARK MODE SWITCH -->
+<div class="dark-switch">
+  <input type="checkbox" id="dark-mode-toggle">
+  <label for="dark-mode-toggle">Dark Mode</label>
+</div>
+
+<!-- ☰ MOBILE MENU -->
+<input type="checkbox" id="sidebar-toggle" class="sidebar-toggle">
+<label for="sidebar-toggle" class="toggle-label">☰ Menu</label>
+
+<!-- 🌍 MAIN LAYOUT -->
+<div class="container">
+  <div class="sidebar">
+    <img src="{% static 'estate/logo.png' %}" alt="Logo" class="logo">
+    <div class="profile">
+      <img src="{% static 'estate/profile.png' %}" alt="Profile">
+      <p>{{ request.user.username }}</p>
+    </div>
+    <a href="{% url 'tenant_list' %}">📋 All Tenants</a>
+    {% if perms.estate.add_tenant %}
+      <a href="{% url 'add_tenant' %}">➕ Add Tenant</a>
+    {% endif %}
+    <a href="{% url 'dashboard' %}">📊 Dashboard</a>
+    {% if perms.estate.view_tenant %}
+      <a href="{% url 'export_csv' %}">⬇️ Export CSV</a>
+    {% endif %}
+    <a href="{% url 'logout' %}">🚪 Logout</a>
+  </div>
+
+  <div class="main-content">
+    <h1 style="text-align:center;">GODMAN ESTATE KARU <br>📋 Tenant Rent Status</h1>
+
+    <!-- 🔍 FILTER FORM -->
+    <form method="get" action="{% url 'tenant_list' %}" class="filter-form">
+  <input type="text" name="search" placeholder="Search by name or phone..." value="{{ search_query }}" style="padding:8px; width:200px;">
+  
+  <select name="filter">
+    <option value="">-- Rent Status --</option>
+    <option value="active" {% if current_filter == 'active' %}selected{% endif %}>Active</option>
+    <option value="expiring" {% if current_filter == 'expiring' %}selected{% endif %}>Expiring</option>
+    <option value="expired" {% if current_filter == 'expired' %}selected{% endif %}>Expired</option>
+  </select>
+
+  <select name="block">
+    <option value="">-- All Blocks --</option>
+    {% for b in blocks %}
+      <option value="{{ b }}" {% if block_filter == b|stringformat:"s" %}selected{% endif %}>Block {{ b }}</option>
+    {% endfor %}
+  </select>
+
+  <select name="flat_type">
+    <option value="">-- All Types --</option>
+    {% for f in flat_types %}
+      <option value="{{ f }}" {% if flat_type_filter == f %}selected{% endif %}>{{ f }}</option>
+    {% endfor %}
+  </select>
+
+  <button type="submit">Apply Filter</button>
+
+  <a href="{% url 'export_tenant_list_pdf' %}?search={{ search_query }}&filter={{ current_filter }}&block={{ block_filter }}&flat_type={{ flat_type_filter }}" target="_blank" style="text-decoration:none; padding:8px 12px; background:#28a745; color:white; border-radius:5px;">📄 Export PDF</a>
+</form>
+ 
+
+    <!-- 📊 TABLE -->
+    <table>
+      <thead>
+        <tr>
+          <th>Tenant</th><th>Phone</th><th>Flat</th><th>Block</th><th>Flat Type</th>
+          <th>Start</th><th>Expiry</th><th>Rent</th><th>Status</th><th>Note</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data %}
+        <tr class="{{ item.status }}">
+          <td data-label="Tenant">{{ item.tenant.full_name }}</td>
+          <td data-label="Phone">{{ item.tenant.phone_number }}</td>
+          <td data-label="Flat">{{ item.tenant.flat_number }}</td>
+          <td data-label="Block">{{ item.tenant.block.number }}</td>
+          <td data-label="Flat Type">{{ item.tenant.flat_type }}</td>
+          <td data-label="Start">{{ item.agreement.date_of_agreement }}</td>
+          <td data-label="Expiry">{{ item.agreement.date_of_expiration }}</td>
+          <td data-label="Rent">₦{{ item.agreement.rent_amount }}</td>
+          <td data-label="Status">{{ item.status|title }}</td>
+          <td data-label="Note">{{ item.agreement.payment_or_renewal_note }}</td>
+          <td data-label="Actions">
+            {% if perms.estate.change_tenant %}
+              <a href="{% url 'edit_tenant' item.tenant.id %}">✏️ Edit</a> |
+            {% endif %}
+            {% if perms.estate.delete_tenant %}
+              <a href="{% url 'delete_tenant' item.tenant.id %}">🗑 Delete</a> |
+            {% endif %}
+            {% if perms.estate.view_rentagreement %}
+              <a href="{% url 'generate_invoice' item.tenant.id %}">📄 Invoice</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 👣 FOOTER -->
+<footer>
+  Developed by <strong><a href="https://www.stinetdigital.com.ng" style="color: var(--accent); text-decoration: none;">Stinet Digital</a></strong> © {{ now|date:"Y" }}
+</footer>
+
+<!-- 🌙 DARK MODE SCRIPT -->
+<script>
+  const toggle = document.getElementById('dark-mode-toggle');
+  toggle.addEventListener('change', () => {
+    document.documentElement.setAttribute('data-theme', toggle.checked ? 'dark' : 'light');
+    localStorage.setItem('darkMode', toggle.checked);
+  });
+
+  if (localStorage.getItem('darkMode') === 'true') {
+    toggle.checked = true;
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+</script>
+{% endblock %}
