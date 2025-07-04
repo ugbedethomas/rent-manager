@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from .models import Tenant, RentAgreement, LoginLog
 from .forms import TenantForm, RentAgreementForm
-
+from django.core.management import call_command
 
 # 📋 LIST + FILTER + SEARCH
 @login_required
@@ -285,3 +285,6 @@ def export_tenant_list_pdf(request):
     if pisa_status.err:
         return HttpResponse('❌ Error generating PDF', status=500)
     return pdf_response
+def run_migrations(request):
+    call_command('migrate')
+    return HttpResponse("✅ Migrations completed.")

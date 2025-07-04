@@ -17,12 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
-
+from estate import views  # ✅ Import your custom view here
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('estate.urls')),
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    path('', include('estate.urls')),
+    path('run-migrations/', views.run_migrations, name='run_migrations'),  # ✅ Temporary migration URL
 ]
+
