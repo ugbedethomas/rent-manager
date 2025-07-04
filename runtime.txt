@@ -1,0 +1,7 @@
+python-3.12.1
+Django>=5.0,<6.0
+gunicorn
+xhtml2pdf
+python-dotenv
+pillow
+django-humanize
