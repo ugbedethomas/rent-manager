@@ -9,10 +9,11 @@ from django.utils.dateparse import parse_date
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User  # 🧠 This line was missing
+from django.core.management import call_command
 
 from .models import Tenant, RentAgreement, LoginLog
 from .forms import TenantForm, RentAgreementForm
-from django.core.management import call_command
 
 # 📋 LIST + FILTER + SEARCH
 @login_required
@@ -285,6 +286,18 @@ def export_tenant_list_pdf(request):
     if pisa_status.err:
         return HttpResponse('❌ Error generating PDF', status=500)
     return pdf_response
+
+
+# ⚙️ Migrate on demand
 def run_migrations(request):
     call_command('migrate')
     return HttpResponse("✅ Migrations completed.")
+
+
+# 👤 Create temporary superuser
+def create_superuser(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'adminpass123')
+        return HttpResponse("✅ Superuser created: admin / adminpass123")
+    else:
+        return HttpResponse("⚠️ Superuser already exists.")
